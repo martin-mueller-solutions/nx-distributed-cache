@@ -34,8 +34,31 @@ Add or update your `taskRunnerOptions` in your `nx.json` to use this custom task
 },
 ```
 
+### AWS Policy
 The user belonging to these credentials needs at least access to read, write and list items in the bucket.
 
+Example AWS policy:
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "s3:PutObject",
+                "s3:GetObject",
+                "s3:ListBucket"
+            ],
+            "Resource": [
+                "arn:aws:s3:::<s3 bucket>/*",
+                "arn:aws:s3:::<s3 bucket>"
+            ]
+        }
+    ]
+}
+```
+### Enviroment 
 You can also set all these options as an environment variable in your build-process (e.g. docker ENV, ...):
 
 ```js
