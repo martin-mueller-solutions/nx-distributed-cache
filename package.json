@@ -1,9 +1,14 @@
 {
   "name": "@magile/nx-distributed-cache",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Distributed Cache For Your NX build. Optimize your build time by caching the artifacts across multiple devices.",
   "main": "S3/index.js",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/magile-de/nx-distributed-cache.git"
+  },
+  "homepage": "https://github.com/magile-de/nx-distributed-cache",
   "keywords": [
     "nx",
     "build",
