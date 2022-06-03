@@ -99,7 +99,7 @@ export class S3Adapter {
 
       try {
         fs.mkdirSync(writePath, {recursive: true})
-        fs.writeFileSync(writeFile, content.toString())
+        fs.writeFileSync(writeFile, content)
       } catch (e) {
         console.log(e)
       }
