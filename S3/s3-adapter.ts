@@ -1,4 +1,5 @@
 import {S3} from "aws-sdk";
+
 const AWS = require('aws-sdk');
 const path = require("path");
 const fs = require('fs');
@@ -16,14 +17,21 @@ export class S3Adapter {
   constructor(options: S3AdapterOptions) {
     this.options = Object.assign(options, process.env);
 
-    if (!this.options.accessKeyId || !this.options.secretAccessKey || !this.options.bucketName) {
-      throw Error('The configuration for S3 is invalid');
+    if (!this.options.bucketName) {
+      throw Error('The configuration for S3 is invalid. BucketName is mandatory.');
     }
 
-    this.S3 = new AWS.S3({
-      accessKeyId: this.options.accessKeyId,
-      secretAccessKey: this.options.secretAccessKey
-    })
+    let awsConfiguration = {};
+    if (!!this.options.accessKeyId && !!this.options.secretAccessKey) {
+      awsConfiguration = {
+        accessKeyId: this.options.accessKeyId,
+        secretAccessKey: this.options.secretAccessKey
+      }
+    } else {
+      console.warn('No AccessKey and SecretAccessKey passed. Implicit authorization from AWS is used.');
+    }
+
+    this.S3 = new AWS.S3(awsConfiguration);
   }
 
   uploadFile(fileName, targetPath) {
@@ -124,7 +132,7 @@ export class S3Adapter {
 
     walkSync(s3Path, (filePath, stat) => {
       let bucketPath = filePath.substring(s3Path.length + 1);
-      let params = {Bucket: this.options.bucketName + '/' +  hash, Key: bucketPath, Body: fs.readFileSync(filePath)};
+      let params = {Bucket: this.options.bucketName + '/' + hash, Key: bucketPath, Body: fs.readFileSync(filePath)};
       this.S3.putObject(params, (err, data) => {
         if (err) {
           console.log(err)
