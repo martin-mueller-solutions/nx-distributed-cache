@@ -5,6 +5,8 @@ A custom runner for builds in NX to store your build artifacts on a distributed 
 This custom runner only supports AWS S3 storage for now. Other storages might be added in the future. Feel free to add one and
 create a PR.
 
+You may also be able to use Digital Ocean Spaces too, since that is compatible with S3. 
+
 ## Install
 
 nx-distributed-cache is available on npm:
@@ -20,7 +22,7 @@ Add or update your `taskRunnerOptions` in your `nx.json` to use this custom task
 ```json
 "tasksRunnerOptions": {
     "default": {
-        "runner": "./node_modules/@magile/nx-distributed-cache/S3",
+        "runner": "@magile/nx-distributed-cache/S3",
         "options": {
             "cacheableOperations": ["build", "lint", "test", "e2e"],
             "remoteDirectory": "<local cache directory>",
