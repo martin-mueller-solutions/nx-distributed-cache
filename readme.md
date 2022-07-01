@@ -36,6 +36,10 @@ Add or update your `taskRunnerOptions` in your `nx.json` to use this custom task
 },
 ```
 
+### Optional Parameters
+
+You can also pass `endpoint` and `region`. For e.g. using [Digital Ocean Spaces](https://www.digitalocean.com/products/spaces).
+
 ### AWS Policy
 The user belonging to these credentials needs at least access to read, write and list items in the bucket.
 

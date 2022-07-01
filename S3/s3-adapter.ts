@@ -5,8 +5,10 @@ const path = require("path");
 const fs = require('fs');
 
 export interface S3AdapterOptions {
-  accessKeyId: string,
-  secretAccessKey: string,
+  accessKeyId?: string,
+  secretAccessKey?: string,
+  endpoint?: string,
+  region?: string,
   bucketName: string
 }
 
@@ -21,7 +23,7 @@ export class S3Adapter {
       throw Error('The configuration for S3 is invalid. BucketName is mandatory.');
     }
 
-    let awsConfiguration = {};
+    let awsConfiguration: S3.Types.ClientConfiguration = {};
     if (!!this.options.accessKeyId && !!this.options.secretAccessKey) {
       awsConfiguration = {
         accessKeyId: this.options.accessKeyId,
@@ -29,6 +31,15 @@ export class S3Adapter {
       }
     } else {
       console.warn('No AccessKey and SecretAccessKey passed. Implicit authorization from AWS is used.');
+    }
+
+    if (!!this.options.endpoint) {
+      awsConfiguration.endpoint = this.options.endpoint;
+      console.info('Overriding S3 endpoint to ' + awsConfiguration.endpoint);
+    }
+    if (!!this.options.region) {
+      awsConfiguration.region = this.options.region;
+      console.info('Region is set to ' + awsConfiguration.region);
     }
 
     this.S3 = new AWS.S3(awsConfiguration);
