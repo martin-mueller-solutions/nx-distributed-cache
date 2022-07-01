@@ -1,6 +1,6 @@
 {
   "name": "@magile/nx-distributed-cache",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "Distributed Cache For Your NX build. Optimize your build time by caching the artifacts across multiple devices.",
   "main": "S3/index.js",
   "license": "MIT",
