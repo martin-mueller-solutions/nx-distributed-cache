@@ -58,7 +58,7 @@ class NXDistributedS3Cache implements RemoteCache {
     return Promise.resolve(false);
   }
 
-  store = (hash: string, cacheDirectory: string): Promise<boolean> => {
+  store = async (hash: string, cacheDirectory: string): Promise<boolean> => {
     console.debug(chalk.blue('NXDistributedCache::store'));
 
     const hashCommit = hash + '.commit';
@@ -67,8 +67,13 @@ class NXDistributedS3Cache implements RemoteCache {
     const localCommit = path.join(cacheDirectory, hashCommit);
     const remoteCommit = path.join(this.remoteDirectory, hashCommit);
 
-    this.S3Adapter.uploadDir(local, hash);
+
+    const start = Date.now();
+
+    await this.S3Adapter.uploadDir(local, hash);
     this.S3Adapter.uploadFile(localCommit, hashCommit);
+
+    console.log(`Uploaded to distributed cache. This took ${Date.now() - start}ms`);
 
     console.log(chalk.green(`${hash} successfully stored in distributed cache.`));
 

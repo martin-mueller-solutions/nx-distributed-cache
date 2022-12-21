@@ -125,33 +125,63 @@ export class S3Adapter {
     }
   }
 
-  uploadDir(s3Path, hash) {
+  files = [];
 
-    const start = Date.now();
-    let fileCount = 0;
-    const walkSync = (currentDirPath, callback) => {
-      fs.readdirSync(currentDirPath).forEach(name => {
-        const filePath = path.join(currentDirPath, name);
-        const stat = fs.statSync(filePath);
-        if (stat.isFile()) {
-          callback(filePath, stat);
-        } else if (stat.isDirectory()) {
-          walkSync(filePath, callback);
-        }
-      });
-    };
-
-    walkSync(s3Path, (filePath, stat) => {
-      let bucketPath = filePath.substring(s3Path.length + 1);
-      let params = {Bucket: this.options.bucketName + '/' + hash, Key: bucketPath, Body: fs.readFileSync(filePath)};
-      this.S3.putObject(params, (err, data) => {
-        if (err) {
-          console.log(err)
-        }
-        fileCount++;
-      });
+  directoryList(Directory) {
+    fs.readdirSync(Directory).forEach(File => {
+      const Absolute = path.join(Directory, File);
+      if (fs.statSync(Absolute).isDirectory()) {
+        return this.directoryList(Absolute);
+      } else {
+        return this.files.push(Absolute);
+      }
     });
+  }
 
-    console.log(`Uploaded to distributed cache. This took ${Date.now() - start}ms`)
+  async uploadDir(s3Path, hash) {
+    this.files = [];
+
+    this.directoryList(s3Path);
+
+    const uploads = this.files.map(filePath => {
+      let bucketPath = filePath.substring(s3Path.length + 1);
+      return {Bucket: this.options.bucketName + '/' + hash, Key: bucketPath, Body: fs.readFileSync(filePath)};
+    })
+
+    console.log('Files found', uploads.length);
+
+    return Promise.all(uploads.map(upload => {
+      return new Promise<any>(async (resolve, reject) => {
+
+        this.S3.putObject(upload, (err, data) => {
+          if (err) {
+            console.log(err);
+            reject(err);
+          }
+          resolve(upload.Key)
+        });
+      });
+    }))
+
+
+
+    // const walkSync = (currentDirPath, callback) => {
+    //   fs.readdirSync(currentDirPath).forEach(name => {
+    //     const filePath = path.join(currentDirPath, name);
+    //     const stat = fs.statSync(filePath);
+    //     if (stat.isFile()) {
+    //       callback(filePath, stat);
+    //     } else if (stat.isDirectory()) {
+    //       walkSync(filePath, callback);
+    //     }
+    //   });
+    // };
+    //
+    // walkSync(s3Path, (filePath, stat) => {
+    //   let bucketPath = filePath.substring(s3Path.length + 1);
+    //   let params = {Bucket: this.options.bucketName + '/' + hash, Key: bucketPath, Body: fs.readFileSync(filePath)};
+    //   uploads.push(params);
+    // });
+
   };
 }
